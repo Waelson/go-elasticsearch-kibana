@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  webapp:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - logs:/app/logs
+    depends_on:
+      - elasticsearch
+      - kibana
+
+#  filebeat:
+#    build:
+#      context: ./filebeat
+#      dockerfile: Dockerfile
+#    volumes:
+#      - logs:/app/logs
+#    depends_on:
+#      - webapp
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.10.0
+    volumes:
+      - logs:/app/logs
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - webapp
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - cluster.initial_master_nodes=es01
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./es01:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+volumes:
+  logs:
