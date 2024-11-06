@@ -1,4 +1,4 @@
-# Golang + Elastic Search + Kibana
+# Go Application + Elastic Search + Kibana
 Esse repositório contém uma demonstração da integração da stack Elastic Search e Kibana. A aplicação de exemplo foi desenvolvida em Golang.
 
 ## Pré Requisitos
